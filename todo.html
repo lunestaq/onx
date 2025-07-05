@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SMTP Server TODO List</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    padding: 20px;
+  }
+  h1, h2, h3 {
+    color: #80cbc4;
+  }
+  ul {
+    list-style-type: none;
+    padding-left: 0;
+  }
+  li {
+    margin: 8px 0;
+    position: relative;
+    padding-left: 20px;
+  }
+  li::before {
+    content: "•";
+    color: #ffab40;
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 1.2em;
+    line-height: 1;
+  }
+  .todo-section {
+    margin-bottom: 40px;
+  }
+  code {
+    background-color: #1e1e1e;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: Consolas, monospace;
+    color: #c5e1a5;
+  }
+</style>
+</head>
+<body>
+
+<h1>SMTP Server TODO List</h1>
+
+<div class="todo-section">
+  <h2>1. Add TLS Support (STARTTLS)</h2>
+</div>
+
+<div class="todo-section">
+  <h2>2. Adjust EHLO Response</h2>
+</div>
+
+<div class="todo-section">
+  <h2>3. Add Additional SMTP Commands</h2>
+</div>
+
+<div class="todo-section">
+  <h2>4. Refine SMTP Responses And Response Codes</h2>
+</div>
+
+<div class="todo-section">
+  <h2>5. Email Handling</h2>
+  <ul>
+    <li>Validate email addresses</li>
+    <li>Check recipient domain</li>
+    <li>Store mails</li>
+  </ul>
+</div>
+
+<h2>CLIENT ERA</h2>
+
+<div class="todo-section">
+  <h3>6. Authentication</h3>
+  <ul>
+    <li>Implement <code>AUTH</code> command</li>
+  </ul>
+</div>
+
+<div class="todo-section">
+  <h3>7. Sending Emails</h3>
+  <ul>
+    <li>Add ability for authenticated clients to send emails through the server</li>
+  </ul>
+</div>
+
+<div class="todo-section">
+  <h2>8. Logging and Monitoring</h2>
+  <ul>
+    <li>Implement detailed logging of SMTP sessions, commands, and errors</li>
+    <li>Add metrics or statistics for monitoring server health and usage</li>
+  </ul>
+</div>
+
+<div class="todo-section">
+  <h2>9. Testing and Debugging</h2>
+  <ul>
+    <li>Write unit tests(?)</li>
+    <li>Test authentication workflows thoroughly</li>
+    <li>Simulate error cases (invalid commands, bad email addresses, etc.)</li>
+  </ul>
+</div>
+
+<div class="todo-section">
+  <h2>10. Documentation</h2>
+  <ul>
+    <li>Document setup, configuration, and usage</li>
+    <li>Provide examples of SMTP sessions and supported commands</li>
+    <li>Document limitations and planned features</li>
+  </ul>
+</div>
+
+</body>
+</html>

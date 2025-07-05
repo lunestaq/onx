@@ -3,23 +3,23 @@ package main
 import (
 	"log"
 	"net"
+	"os"
 )
 
 func main() {
-	log.SetFlags(log.LstdFlags | log.LUTC)
-	log.Println("ONXYIA SERVER STARTING")
-	listener, err := net.Listen("tcp", ":2525")
-	if err != nil {log.Fatalf("error on binding port: %v", err)}
+	if len(os.Args) < 2 {log.Fatal("wrong usage")}
+	port := os.Args[1]
+	listener, err := net.Listen("tcp", ":"+port)
+	if err != nil {log.Fatalf("error binding port: %s\n", err)}
 	defer listener.Close()
-	log.Println("started listening")
 
 	for {
 		connection, err := listener.Accept()
 		if err != nil {
-			log.Printf("error on accepting connection: %v\n", err)
+			log.Printf("error accepting connection: %s\n", err)
 			continue
 		}
-		log.Printf("got new connection: %v\n", connection.RemoteAddr())
-		handle_connection(connection)
+
+		go handle_smtp(connection)
 	}
 }
