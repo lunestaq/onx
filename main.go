@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+	log.SetFlags(log.LUTC)
 	if len(os.Args) < 2 {log.Fatal("wrong usage")}
 	port := os.Args[1]
 	listener, err := net.Listen("tcp", ":"+port)
@@ -20,6 +21,6 @@ func main() {
 			continue
 		}
 
-		go handle_smtp(connection)
+		go handle_connection(connection)
 	}
 }

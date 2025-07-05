@@ -92,7 +92,7 @@ func handle_QUIT(connection net.Conn, line string, client *client_) {
 	fmt.Fprint(connection, "221 mail.siestaq.com have a great day\n\r")
 }
 
-func handle_smtp(connection net.Conn) {
+func handle_connection(connection net.Conn) {
 	defer connection.Close()
 	log.Printf("new connection: %s\n", connection.RemoteAddr())
 	client := client_{status: "null", data: ""}
@@ -105,7 +105,7 @@ func handle_smtp(connection net.Conn) {
 		"QUIT": handle_QUIT,
 	}	
 	
-	fmt.Fprintf(connection, "220 mail.siestaq.com ready\r\n")
+	fmt.Fprint(connection, "220 mail.siestaq.com ready\r\n")
 	scanner := bufio.NewScanner(connection)
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -115,7 +115,7 @@ func handle_smtp(connection net.Conn) {
 			if strings.HasPrefix(strings.ToUpper(line), prefix) {
 				function(connection, line, &client)
 				if client.status == "quit" {
-					fmt.Print("\n\n\n\n\n\n")
+					fmt.Print("\n")
 					fmt.Printf("status: %s\ndomain: %s\nmail from: %s\nrcpt to: %s\ndata: %s\n\n",client.status,client.domain,client.mail_from,client.rcpt_to,client.data)
 					return
 				}
