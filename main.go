@@ -21,6 +21,6 @@ func main() {
 			continue
 		}
 
-		go handle_connection(connection)
+		go handle_connection(connection, false)
 	}
 }

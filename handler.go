@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"crypto/tls"
 	"fmt"
 	"log"
 	"net"
@@ -33,10 +34,26 @@ func handle_EHLO(connection net.Conn, line string, client *client_) {
 		fmt.Fprintf(connection, "250-mail.siestaq.com Hello %s\r\n", client.domain)
 		fmt.Fprint(connection, "250-SIZE 10485760\r\n")
 		fmt.Fprint(connection, "250-8BITMEME\r\n")
+		fmt.Fprint(connection, "250-STARTTLS\r\n")
 		fmt.Fprint(connection, "250 ok\r\n")
 	} else {
 		fmt.Fprint(connection, "503\r\n")
 	}
+}
+
+func handle_STARTTLS(connection net.Conn, line string, client *client_) {
+	cert, err := tls.LoadX509KeyPair("/etc/letsencrypt/live/siestaq.com/fullchain.pem", "/etc/letsencrypt/live/siestaq.com/privkey.pem")
+	if err != nil {
+		log.Printf("tls load error: %s\n", err)
+		return
+	}
+	var tls_config *tls.Config
+	var tls_connection *tls.Conn
+	fmt.Fprint(connection, "220 ready\r\n")
+	tls_config = &tls.Config{Certificates: []tls.Certificate{cert}}
+	tls_connection = tls.Server(connection, tls_config)
+	handle_connection(tls_connection, true)
+	client.status = "quit"
 }
 
 func handle_MAIL_FROM(connection net.Conn, line string, client *client_) {
@@ -86,30 +103,40 @@ func handle_rest_of_DATA(connection net.Conn, client *client_) {
 	}
 }
 
+func handle_RSET(connection net.Conn, line string, client *client_) {
+	client.status = "HELO_DONE"
+	client.mail_from = ""
+	client.rcpt_to = ""
+	client.data = ""
+	fmt.Fprint(connection, "250 ok\r\n")
+}
+
 func handle_QUIT(connection net.Conn, line string, client *client_) {
 	client.status = "quit"
 	log.Printf("[%s] is quitting", connection.RemoteAddr())
 	fmt.Fprint(connection, "221 mail.siestaq.com have a great day\n\r")
 }
 
-func handle_connection(connection net.Conn) {
+func handle_connection(connection net.Conn, is_tls bool) {
 	defer connection.Close()
-	log.Printf("new connection: %s\n", connection.RemoteAddr())
+	if is_tls == false {log.Printf("[%s] connected\n", connection.RemoteAddr())}
 	client := client_{status: "null", data: ""}
 	funcmap := map[string]func(net.Conn, string, *client_) {
 		"HELO": handle_HELO,
 		"EHLO": handle_EHLO,
+		"STARTTLS": handle_STARTTLS,
 		"MAIL FROM:": handle_MAIL_FROM,
 		"RCPT TO:": handle_RCPT_TO,
 		"DATA": handle_DATA,
+		"RSET": handle_RSET,
 		"QUIT": handle_QUIT,
 	}	
 	
-	fmt.Fprint(connection, "220 mail.siestaq.com ready\r\n")
+	if is_tls == false {fmt.Fprint(connection, "220 mail.siestaq.com ready\r\n")}
 	scanner := bufio.NewScanner(connection)
 	for scanner.Scan() {
 		line := scanner.Text()
-		log.Printf("recieved [%s]: %s", connection.RemoteAddr(), line)
+		log.Printf("[%s] recieved: %s\n", connection.RemoteAddr(), line)
 
 		for prefix, function := range funcmap {
 			if strings.HasPrefix(strings.ToUpper(line), prefix) {
