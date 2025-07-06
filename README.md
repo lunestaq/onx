@@ -1,17 +1,7 @@
 # SERVER ERA
 
-## Stage 1
-- Adjust EHLO response
-- Add rest of SMTP commands
-
 ## Stage 2
 - Re-do responses
-
-## Stage 3
-- Better logging
-
-## Stage 4
-- General refactoring — code looks so messy
 
 ## Stage 5
 - Validate and store emails

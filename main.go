@@ -1,26 +1,23 @@
 package main
 
 import (
-	"log"
 	"net"
 	"os"
 )
 
 func main() {
-	log.SetFlags(log.LUTC)
-	if len(os.Args) < 2 {log.Fatal("wrong usage")}
-	port := os.Args[1]
-	listener, err := net.Listen("tcp", ":"+port)
-	if err != nil {log.Fatalf("error binding port: %s\n", err)}
+	if len(os.Args) < 2 {ERROR(nil, "wrong usage")}
+	listener, err := net.Listen("tcp", ":"+os.Args[1])
+	if err != nil {ERROR(nil, err)}
 	defer listener.Close()
 
 	for {
 		connection, err := listener.Accept()
 		if err != nil {
-			log.Printf("error accepting connection: %s\n", err)
+			WARNING(nil, err)
 			continue
 		}
 
-		go handle_connection(connection, false)
+		go handle_connection(connection, TLS_FALSE)
 	}
 }
