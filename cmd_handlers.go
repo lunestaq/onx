@@ -95,6 +95,8 @@ func handle_rest_of_DATA(connection net.Conn, client *client_) {
 		if line == "." {
 			client.status = "DATA_DONE"
 			OUTGOING(connection, "250 ok\r\n")
+			err := save_mail(client.data) 
+			if err != nil {WARNING(connection.RemoteAddr(), "error at writing mail to file: %s", err)} else {INFO(connection.RemoteAddr(), "wrote mail to file")}
 			break
 		} else {
 			if strings.HasPrefix(line, "..") {

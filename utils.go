@@ -4,6 +4,11 @@ import (
 	"regexp"
 	"strings"
 	"net"
+	"os"
+	"fmt"
+	"strconv"
+	"path/filepath"
+	"time"
 )
 
 func is_valid_domain(arg string) bool {
@@ -28,3 +33,16 @@ func is_valid_domain(arg string) bool {
     return domainRegex.MatchString(arg)
 	// thanks chatgpt
 }
+
+func save_mail(emailData string) error {
+    hostname, err := os.Hostname()
+    if err != nil {hostname = "localhost"}
+	
+	pid := os.Getpid()
+    timestamp := strconv.FormatInt(time.Now().UnixNano(), 10)
+    filename := fmt.Sprintf("%s.%d.%s", timestamp, pid, hostname)
+
+	file := filepath.Join("/home/siesta/Maildir/new", filename)
+    return os.WriteFile(file, []byte(emailData), 0600)
+}
+
