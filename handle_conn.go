@@ -51,8 +51,11 @@ func handle_connection(connection net.Conn, is_tls bool) {
 					return
 				}
 				if client.status == "quit_after_tls" {return}
-			}
+				goto done
+			}	
 		}
+		OUTGOING(connection, "500 unrecognized\r\n")
+		done:
 	}
 
 	if err := scanner.Err(); err != nil {

@@ -12,7 +12,7 @@ func handle_HELO(connection net.Conn, line string, client *client_) {
 	if client.status == "null" {
 		client.domain = strings.ReplaceAll(line, "HELO ", "")
 		if !is_valid_domain(client.domain) {
-			OUTGOING(connection, "504 syntax error")
+			OUTGOING(connection, "504 syntax error\r\n")
 		} else {
 			payload := fmt.Sprintf("250-mail.siestaq.com greetings %s\r\n", client.domain)
 			OUTGOING(connection, payload)
@@ -27,7 +27,7 @@ func handle_EHLO(connection net.Conn, line string, client *client_) {
 	if client.status == "null" {
 		client.domain = strings.ReplaceAll(line, "EHLO ", "")
 		if !is_valid_domain(client.domain) {
-			OUTGOING(connection, "504 syntax error")
+			OUTGOING(connection, "504 syntax error\r\n")
 		} else {
 			payload := fmt.Sprintf("250-mail.siestaq.com greetings %s\r\n", client.domain)
 			OUTGOING(connection, payload)

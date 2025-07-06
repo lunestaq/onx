@@ -1,4 +1,5 @@
-- implement command not found response
+~- implement command not found response~
+- remake `MAIL FROM` - it has flaws
 - implement mail forwarding (mail sending)
 - some testing
 - implement `AUTH` command

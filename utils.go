@@ -43,6 +43,6 @@ func save_mail(emailData string) error {
     filename := fmt.Sprintf("%s.%d.%s", timestamp, pid, hostname)
 
 	file := filepath.Join("/home/siesta/Maildir/new", filename)
-    return os.WriteFile(file, []byte(emailData), 0600)
+    return os.WriteFile(file, []byte(emailData), 0666)
 }
 
