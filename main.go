@@ -8,13 +8,13 @@ import (
 func main() {
 	if len(os.Args) < 2 {ERROR(nil, "wrong usage")}
 	listener, err := net.Listen("tcp", ":"+os.Args[1])
-	if err != nil {ERROR(nil, err)}
+	if err != nil {ERROR(nil, "error at binding port: %s", err)}
 	defer listener.Close()
 
 	for {
 		connection, err := listener.Accept()
 		if err != nil {
-			WARNING(nil, err)
+			WARNING(nil, "error at accepting: %s", err)
 			continue
 		}
 

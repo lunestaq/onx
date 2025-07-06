@@ -14,11 +14,10 @@ type client_ struct {
 	mail_from string
 	rcpt_to   string
 	data      string
-}
+} 
 
 func handle_connection(connection net.Conn, is_tls bool) {
 	defer connection.Close()
-	if is_tls == false {INFO(connection.RemoteAddr(), "connected")}
 	client := client_{status: "null", data: ""}
 	funcmap := map[string]func(net.Conn, string, *client_) {
 		"HELO": handle_HELO,
@@ -30,13 +29,17 @@ func handle_connection(connection net.Conn, is_tls bool) {
 		"RSET": handle_RSET,
 		"NOOP": handle_NOOP,
 		"QUIT": handle_QUIT,
-	}	
-	
-	if is_tls == false {fmt.Fprint(connection, "220 mail.siestaq.com ready\r\n")}
+	}
+
+	if is_tls == false {
+		INFO(connection.RemoteAddr(), "connected")
+		fmt.Fprint(connection, "220 mail.siestaq.com ready\r\n")	
+	}
+
 	scanner := bufio.NewScanner(connection)
 	for scanner.Scan() {
 		line := scanner.Text()
-		INFO(connection.RemoteAddr(), line)
+		INFO(connection.RemoteAddr(), "IN: %s", line)
 
 		for prefix, function := range funcmap {
 			if strings.HasPrefix(strings.ToUpper(line), prefix) {
@@ -53,6 +56,6 @@ func handle_connection(connection net.Conn, is_tls bool) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		WARNING(connection.RemoteAddr(), err)
+		WARNING(connection.RemoteAddr(), "error at receiving: %s", err)
 	}
 }

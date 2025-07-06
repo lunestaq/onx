@@ -35,11 +35,9 @@ func handle_EHLO(connection net.Conn, line string, client *client_) {
 func handle_STARTTLS(connection net.Conn, line string, client *client_) {
 	cert, err := tls.LoadX509KeyPair("/etc/letsencrypt/live/siestaq.com/fullchain.pem", "/etc/letsencrypt/live/siestaq.com/privkey.pem")
 	if err != nil {
-		WARNING(connection.RemoteAddr(), err)
+		WARNING(connection.RemoteAddr(), "error at loading tls: %s", err)
 		return
-	}
-	//var tls_config *tls.Config
-	//var tls_connection *tls.Conn
+	}	
 	fmt.Fprint(connection, "220 ready\r\n")
 	tls_config := &tls.Config{Certificates: []tls.Certificate{cert}}
 	tls_connection := tls.Server(connection, tls_config)
