@@ -20,8 +20,8 @@ func handle_connection(connection net.Conn, is_tls bool) {
 	defer connection.Close()
 	client := client_{status: "null", data: ""}
 	funcmap := map[string]func(net.Conn, string, *client_) {
-		"HELO": handle_HELO,
-		"EHLO": handle_EHLO,
+		"HELO ": handle_HELO,
+		"EHLO ": handle_EHLO,
 		"STARTTLS": handle_STARTTLS,
 		"MAIL FROM:": handle_MAIL_FROM,
 		"RCPT TO:": handle_RCPT_TO,
@@ -33,13 +33,13 @@ func handle_connection(connection net.Conn, is_tls bool) {
 
 	if is_tls == false {
 		INFO(connection.RemoteAddr(), "connected")
-		fmt.Fprint(connection, "220 mail.siestaq.com ready\r\n")	
+		OUTGOING(connection, "220 mail.siestaq.com ready\r\n")
 	}
 
 	scanner := bufio.NewScanner(connection)
 	for scanner.Scan() {
 		line := scanner.Text()
-		INFO(connection.RemoteAddr(), "IN: %s", line)
+		INCOMING(connection, line)
 
 		for prefix, function := range funcmap {
 			if strings.HasPrefix(strings.ToUpper(line), prefix) {

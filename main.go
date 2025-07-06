@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	if len(os.Args) < 2 {ERROR(nil, "wrong usage")}
+	if len(os.Args) < 2 {INFO(nil, "wrong usage"); os.Exit(1)}
 	listener, err := net.Listen("tcp", ":"+os.Args[1])
 	if err != nil {ERROR(nil, "error at binding port: %s", err)}
 	defer listener.Close()

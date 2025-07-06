@@ -1,8 +1,5 @@
 # SERVER ERA
 
-## Stage 2
-- Re-do responses
-
 ## Stage 5
 - Validate and store emails
 
