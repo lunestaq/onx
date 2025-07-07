@@ -11,6 +11,10 @@ import (
 	"time"
 )
 
+func extract_mail(line string) string {
+	return line[strings.Index(line, "<")+1:strings.Index(line, ">")]
+}
+
 func is_valid_domain(arg string) bool {
     if len(arg) == 0 || len(arg) > 255 {
         return false

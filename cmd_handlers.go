@@ -60,7 +60,7 @@ func handle_STARTTLS(connection net.Conn, line string, client *client_) {
 
 func handle_MAIL_FROM(connection net.Conn, line string, client *client_) {
 	if client.status == "HELO_DONE" {
-		client.mail_from = line[11:len(line)-1]
+		client.mail_from = extract_mail(line)
 		client.status = "MAIL_FROM_DONE"
 		OUTGOING(connection, "250 ok\r\n")
 	} else {
