@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"net"
 	"strings"
 )
@@ -33,7 +32,7 @@ func handle_connection(connection net.Conn, is_tls bool) {
 
 	if is_tls == false {
 		INFO(connection.RemoteAddr(), "connected")
-		OUTGOING(connection, "220 mail.siestaq.com ready\r\n")
+		OUTGOING(connection, "220 "+CONFIGET(MAIL_DOMAIN)+" ready\r\n")
 	}
 
 	scanner := bufio.NewScanner(connection)
@@ -45,9 +44,10 @@ func handle_connection(connection net.Conn, is_tls bool) {
 			if strings.HasPrefix(strings.ToUpper(line), prefix) {
 				function(connection, line, &client)
 				if client.status == "quit" {
-					// save mails here
-					fmt.Print("\n")
-					fmt.Printf("status: %s\ndomain: %s\nmail from: %s\nrcpt to: %s\ndata: %s\n\n",client.status,client.domain,client.mail_from,client.rcpt_to,client.data)
+					if client.data != "" {
+						err := save_mail(client.data) 
+						if err != nil {WARNING(connection.RemoteAddr(), "error at writing mail to file: %s", err)} else {INFO(connection.RemoteAddr(), "saved mail")}
+					}
 					return
 				}
 				if client.status == "quit_after_tls" {return}
@@ -57,7 +57,6 @@ func handle_connection(connection net.Conn, is_tls bool) {
 		OUTGOING(connection, "500 unrecognized\r\n")
 		done:
 	}
-
 	if err := scanner.Err(); err != nil {
 		WARNING(connection.RemoteAddr(), "error at receiving: %s", err)
 	}

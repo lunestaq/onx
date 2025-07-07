@@ -1,10 +1,10 @@
 package main
 
 import (
+	"bufio"
+	"crypto/tls"
 	"fmt"
 	"net"
-	"crypto/tls"
-	"bufio"
 	"strings"
 )
 
@@ -14,7 +14,7 @@ func handle_HELO(connection net.Conn, line string, client *client_) {
 		if !is_valid_domain(client.domain) {
 			OUTGOING(connection, "504 syntax error\r\n")
 		} else {
-			payload := fmt.Sprintf("250-mail.siestaq.com greetings %s\r\n", client.domain)
+			payload := fmt.Sprintf("250-"+CONFIGET(MAIL_DOMAIN)+" greetings %s\r\n", client.domain)
 			OUTGOING(connection, payload)
 			client.status = "HELO_DONE"
 		}
@@ -29,7 +29,7 @@ func handle_EHLO(connection net.Conn, line string, client *client_) {
 		if !is_valid_domain(client.domain) {
 			OUTGOING(connection, "504 syntax error\r\n")
 		} else {
-			payload := fmt.Sprintf("250-mail.siestaq.com greetings %s\r\n", client.domain)
+			payload := fmt.Sprintf("250-"+CONFIGET(MAIL_DOMAIN)+" greetings %s\r\n", client.domain)
 			OUTGOING(connection, payload)
 			OUTGOING(connection, "250-SIZE 10485760\r\n")
 			OUTGOING(connection, "250-8BITMIME\r\n")
@@ -44,7 +44,7 @@ func handle_EHLO(connection net.Conn, line string, client *client_) {
 
 func handle_STARTTLS(connection net.Conn, line string, client *client_) {
 	INFO(connection.RemoteAddr(), "loading tls")
-	cert, err := tls.LoadX509KeyPair("/etc/letsencrypt/live/siestaq.com/fullchain.pem", "/etc/letsencrypt/live/siestaq.com/privkey.pem")
+	cert, err := tls.LoadX509KeyPair(CONFIGET(TLS_FILE_fullchain), CONFIGET(TLS_FILE_privkey))
 	if err != nil {
 		WARNING(connection.RemoteAddr(), "error at loading tls: %s", err)
 		return
@@ -70,7 +70,7 @@ func handle_MAIL_FROM(connection net.Conn, line string, client *client_) {
 
 func handle_RCPT_TO(connection net.Conn, line string, client *client_) {
 	if client.status == "MAIL_FROM_DONE" {
-		client.rcpt_to = line[9:len(line)-1]
+		client.rcpt_to = extract_mail(line)
 		client.status = "RCPT_TO_DONE"
 		OUTGOING(connection, "250 ok\r\n")
 	} else {
@@ -94,9 +94,7 @@ func handle_rest_of_DATA(connection net.Conn, client *client_) {
 		line := scanner.Text()
 		if line == "." {
 			client.status = "DATA_DONE"
-			OUTGOING(connection, "250 ok\r\n")
-			err := save_mail(client.data) 
-			if err != nil {WARNING(connection.RemoteAddr(), "error at writing mail to file: %s", err)} else {INFO(connection.RemoteAddr(), "wrote mail to file")}
+			OUTGOING(connection, "250 ok\r\n")	
 			break
 		} else {
 			if strings.HasPrefix(line, "..") {
@@ -121,5 +119,5 @@ func handle_NOOP(connection net.Conn, line string, client *client_) {
 
 func handle_QUIT(connection net.Conn, line string, client *client_) {
 	client.status = "quit"
-	OUTGOING(connection, "221 mail.siestaq.com have a great day\n\r")
+	OUTGOING(connection, "221 "+CONFIGET(MAIL_DOMAIN)+" have a great day\n\r")
 }

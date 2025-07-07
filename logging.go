@@ -26,5 +26,5 @@ func INCOMING(connection net.Conn, message string) {
 
 func OUTGOING(connection net.Conn, message string) {
 	fmt.Fprint(connection, message)
-	fmt.Fprintf(os.Stderr, "[%s] (%s) OUTGOING: %s\n", time.Now().UTC().Format("02-01-2006 15-04-05.000"), connection.RemoteAddr(), message)
+	fmt.Fprintf(os.Stderr, "[%s] (%s) OUTGOING: %s", time.Now().UTC().Format("02-01-2006 15-04-05.000"), connection.RemoteAddr(), message)
 }

@@ -15,7 +15,7 @@ import (
 const PORT               = "port="               // 25
 const ROOT_DOMAIN        = "root_domain="        // example.com
 const MAIL_DOMAIN        = "mail_domain="        // mail.example.com
-const MAIL_PATH          = "mail_path="          // ~/Maildir
+const MAILDIR_PATH       = "mail_path="          // ~/Maildir
 const enable_disable_tls = 4                     // not yet implemented (tls is always on)
 const TLS_FILE_fullchain = "tls_file_fullchain=" // /etc/letsencrypt/live/example.com/fullchain.pem
 const TLS_FILE_privkey   = "tls_file_privkey="   // /etc/letsencrypt/live/example.com/privkey.pem
@@ -48,7 +48,7 @@ func is_valid_domain(arg string) bool {
 	// thanks chatgpt
 }
 
-func save_mail(emailData string) error {
+func save_mail(email_data string) error {
     hostname, err := os.Hostname()
     if err != nil {hostname = "localhost"}
 	
@@ -56,14 +56,22 @@ func save_mail(emailData string) error {
     timestamp := strconv.FormatInt(time.Now().UnixNano(), 10)
     filename := fmt.Sprintf("%s.%d.%s", timestamp, pid, hostname)
 
-	file := filepath.Join("/home/siesta/Maildir/new", filename)
-    return os.WriteFile(file, []byte(emailData), 0666)
+	filepath_to_write := filepath.Join(CONFIGET(MAILDIR_PATH), "new")
+	filepath_to_write = filepath.Join(filepath_to_write, filename)
+	file, err := os.Create(filepath_to_write)
+	if err != nil {return err}
+	_, err = file.WriteString(email_data)
+	if err != nil {return err}
+	err = file.Sync()
+	if err != nil {return err}
+	err = file.Close()
+	return err
 }
 
 
 // config file located at /etc/onx/onx.conf
 func CONFIGET(type_of_config string) string {
-	options := []string{PORT, ROOT_DOMAIN, MAIL_DOMAIN, MAIL_PATH, TLS_FILE_fullchain, TLS_FILE_privkey}
+	options := []string{PORT, ROOT_DOMAIN, MAIL_DOMAIN, MAILDIR_PATH, TLS_FILE_fullchain, TLS_FILE_privkey}
 
 	file, err := os.Open("/etc/onx/onx.conf")
 	if err != nil {ERROR(nil, "error at opening config file", err)}
@@ -75,7 +83,6 @@ func CONFIGET(type_of_config string) string {
 		if err != nil {break}
 		line = strings.ReplaceAll(line, " ", "")
 		line = strings.ReplaceAll(line, "\n", "")
-		fmt.Println("line: "+line)
 		for _, option := range options {
 			if strings.HasPrefix(line, option) && type_of_config == option {
 				return strings.ReplaceAll(line, option, "")
